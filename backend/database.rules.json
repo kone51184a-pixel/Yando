@@ -2,6 +2,7 @@
   "rules": {
     "driverLocations": {
       ".indexOn": ["g"],
+      ".read": "auth != null && auth.token.admin === true",
       "$driverId": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $driverId && auth.token.driver === true",

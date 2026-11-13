@@ -9,7 +9,7 @@ import {
   initializeTestEnvironment,
   RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { ref, set } from "firebase/database";
+import { get, ref, set } from "firebase/database";
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 const backendDir = resolve(__dirname, "../../..");
@@ -184,5 +184,21 @@ describe("Signalements (reports)", () => {
     await assertSucceeds(getDoc(doc(admin(), "reports/s7")));
     await assertFails(updateDoc(doc(passenger(), "reports/s7"), { status: "resolved" }));
     await assertSucceeds(updateDoc(doc(admin(), "reports/s7"), { status: "resolved" }));
+  });
+});
+
+describe("Positions GPS : lecture de la liste (carte admin)", () => {
+  const loc = { lat: 12.65, lng: -8.0, g: "efr3x0000", online: true, vehicleClass: "moto" };
+
+  test("l'admin lit toutes les positions, ni un passager ni un chauffeur", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await set(ref(ctx.database(), `driverLocations/${DRIVER}`), { ...loc, ts: Date.now() });
+    });
+    const list = (ctx: ReturnType<RulesTestEnvironment["authenticatedContext"]>) => get(ref(ctx.database(), "driverLocations"));
+    await assertSucceeds(list(env.authenticatedContext(ADMIN, { admin: true })));
+    await assertFails(list(env.authenticatedContext(PASSENGER)));
+    await assertFails(list(env.authenticatedContext(DRIVER, { driver: true })));
+    // La lecture d'une position précise reste possible pour tout utilisateur connecté.
+    await assertSucceeds(get(ref(env.authenticatedContext(PASSENGER).database(), `driverLocations/${DRIVER}`)));
   });
 });
