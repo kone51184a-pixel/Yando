@@ -1,6 +1,6 @@
-// Client Firebase "comme une vraie app" (SDK web), connecté aux émulateurs.
+﻿// Client Firebase "comme une vraie app" (SDK web), connecté aux émulateurs.
 // Sert aux tests de bout en bout et au faux chauffeur.
-import { EMULATOR_HOST, PROJECT_ID } from "./emulatorEnv";
+import { EMULATOR_HOST, FIRESTORE_PORT, PROJECT_ID } from "./emulatorEnv";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, connectAuthEmulator, getAuth, signInWithCustomToken } from "firebase/auth";
 import { connectDatabaseEmulator, Database, getDatabase } from "firebase/database";
@@ -39,7 +39,7 @@ export async function signInAs(uid: string, claims: Record<string, unknown> = {}
   const auth = getAuth(app);
   connectAuthEmulator(auth, `http://${EMULATOR_HOST}:9099`, { disableWarnings: true });
   const db = getFirestore(app);
-  connectFirestoreEmulator(db, EMULATOR_HOST, 8080);
+  connectFirestoreEmulator(db, EMULATOR_HOST, FIRESTORE_PORT);
   const rtdb = getDatabase(app);
   connectDatabaseEmulator(rtdb, EMULATOR_HOST, 9000);
   const functions = getFunctions(app, "europe-west1");

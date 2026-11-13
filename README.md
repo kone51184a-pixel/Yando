@@ -1,4 +1,4 @@
-# Yando — Application VTC Bamako
+﻿# Yando — Application VTC Bamako
 
 Application de transport avec chauffeur pour Bamako : app passager, app chauffeur (Flutter) et tableau de bord administrateur.
 
@@ -27,13 +27,13 @@ Dans un autre terminal, remplir la base de test :
 
 ```bash
 cd backend/functions
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 npm run seed
 ```
 
 Sous Windows (PowerShell) :
 
 ```powershell
-$env:FIRESTORE_EMULATOR_HOST="127.0.0.1:8080"; npm run seed
+$env:FIRESTORE_EMULATOR_HOST="127.0.0.1:8085"; npm run seed
 ```
 
 Interface des émulateurs : http://127.0.0.1:4000

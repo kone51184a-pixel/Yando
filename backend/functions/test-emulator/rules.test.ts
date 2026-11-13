@@ -1,4 +1,4 @@
-// Tests des règles de sécurité Firestore et Realtime Database.
+﻿// Tests des règles de sécurité Firestore et Realtime Database.
 // Lancer avec : npm run test:emulator   (démarre les émulateurs tout seul)
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -30,7 +30,7 @@ const admin = () => env.authenticatedContext(ADMIN, { admin: true }).firestore()
 before(async () => {
   env = await initializeTestEnvironment({
     projectId: "demo-vtc-bamako",
-    firestore: { rules: readFileSync(resolve(backendDir, "firestore.rules"), "utf8"), host: "127.0.0.1", port: 8080 },
+    firestore: { rules: readFileSync(resolve(backendDir, "firestore.rules"), "utf8"), host: "127.0.0.1", port: 8085 },
     database: { rules: readFileSync(resolve(backendDir, "database.rules.json"), "utf8"), host: "127.0.0.1", port: 9000 },
   });
 });

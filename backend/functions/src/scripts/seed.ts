@@ -1,7 +1,7 @@
-/**
+﻿/**
  * Remplit la base avec les tarifs de test, la config et les repères de Bamako.
  * Par défaut UNIQUEMENT sur l'émulateur :
- *   FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed
+ *   FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 npm run seed
  * Sur le vrai projet (après validation des tarifs) : npm run seed -- --prod
  */
 import { readFileSync } from "node:fs";
