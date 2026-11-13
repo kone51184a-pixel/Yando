@@ -1,0 +1,9 @@
+{
+  "surge": 1,
+  "commissionRate": 0.15,
+  "freeCancelSeconds": 120,
+  "cancelFee": 500,
+  "offerTimeoutSeconds": 15,
+  "searchRadiusKm": 5,
+  "maxOffers": 5
+}

@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "driverLocations": {
+      ".indexOn": ["g"],
+      "$driverId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $driverId && auth.token.driver === true",
+        ".validate": "newData.hasChildren(['lat', 'lng', 'g', 'online', 'vehicleClass', 'ts'])",
+        "lat": { ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90" },
+        "lng": { ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180" },
+        "g": { ".validate": "newData.isString() && newData.val().length <= 12" },
+        "heading": { ".validate": "newData.isNumber()" },
+        "online": { ".validate": "newData.isBoolean()" },
+        "vehicleClass": { ".validate": "newData.val() === 'moto' || newData.val() === 'standard' || newData.val() === 'confort'" },
+        "ts": { ".validate": "newData.isNumber() && newData.val() <= now + 60000" },
+        "$other": { ".validate": false }
+      }
+    },
+    "$other": { ".read": false, ".write": false }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "_note": "VALEURS DE TEST en FCFA, à remplacer par les tarifs validés avec le professeur (section 6 du cahier des charges).",
+  "moto": { "base": 300, "perKm": 150, "perMinute": 15, "minimum": 500 },
+  "standard": { "base": 500, "perKm": 250, "perMinute": 25, "minimum": 1000 },
+  "confort": { "base": 800, "perKm": 350, "perMinute": 35, "minimum": 1500 }
+}

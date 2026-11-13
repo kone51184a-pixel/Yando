@@ -1,0 +1,120 @@
+rules_version = '2';
+
+// Règles d'accès (cahier des charges, section 7) :
+// - un passager ne voit que ses courses, un chauffeur que les siennes et celles qu'on lui propose ;
+// - l'admin voit tout ;
+// - les courses, paiements et validations ne sont JAMAIS écrits par le téléphone :
+//   tout passe par les Cloud Functions (qui ignorent ces règles).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // ---------- Passagers ----------
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'fcmToken', 'language', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80;
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'fcmToken', 'language']);
+      allow delete: if false;
+    }
+
+    // ---------- Chauffeurs ----------
+    match /drivers/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      // Inscription : statut forcément "pending", l'admin valide ensuite (fonction validateDriver).
+      allow create: if isSelf(uid)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'photoUrl', 'vehicleClass', 'vehicle',
+                                                 'documents', 'fcmToken', 'status', 'createdAt']);
+      // Le chauffeur ne peut pas toucher à son statut, sa note ou sa course en cours.
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'photoUrl', 'fcmToken', 'documents', 'vehicle']);
+      allow delete: if false;
+
+      match /dailyStats/{day} {
+        allow read: if isSelf(uid) || isAdmin();
+        allow write: if false;
+      }
+    }
+
+    // ---------- Courses ----------
+    match /rides/{rideId} {
+      allow read: if isAdmin()
+        || (signedIn() && (resource.data.passengerId == request.auth.uid
+                           || resource.data.driverId == request.auth.uid
+                           || (resource.data.offer != null && resource.data.offer.driverId == request.auth.uid)));
+      allow write: if false; // uniquement via les fonctions
+
+      // PIN : visible par le passager seulement.
+      match /private/{doc} {
+        allow read: if signedIn() && get(/databases/$(database)/documents/rides/$(rideId)).data.passengerId == request.auth.uid;
+        allow write: if false;
+      }
+
+      // Chat passager ↔ chauffeur.
+      match /messages/{messageId} {
+        function ride() { return get(/databases/$(database)/documents/rides/$(rideId)).data; }
+        function isParticipant() {
+          return signedIn() && (ride().passengerId == request.auth.uid || ride().driverId == request.auth.uid);
+        }
+        allow read: if isParticipant() || isAdmin();
+        allow create: if isParticipant()
+          && ride().status in ['driver_assigned', 'driver_arrived', 'in_progress']
+          && request.resource.data.keys().hasOnly(['senderId', 'text', 'quick', 'createdAt'])
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---------- Paiements ----------
+    match /payments/{rideId} {
+      allow read: if isAdmin()
+        || (signedIn() && (resource.data.passengerId == request.auth.uid || resource.data.driverId == request.auth.uid));
+      allow write: if false;
+    }
+
+    // ---------- Tarifs, config, repères : lecture pour tous, écriture admin ----------
+    match /pricing/{vehicleClass} {
+      allow read: if signedIn();
+      allow write: if isAdmin()
+        && request.resource.data.base is number && request.resource.data.perKm is number
+        && request.resource.data.perMinute is number && request.resource.data.minimum is number;
+    }
+    match /config/{doc} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    match /landmarks/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- Codes promo : vérifiés par la fonction createRide ----------
+    match /promoCodes/{code} {
+      allow read, write: if isAdmin();
+      match /redemptions/{uid} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    // ---------- Signalements ----------
+    match /reports/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.reporterId == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.text is string && request.resource.data.text.size() <= 1000;
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+  }
+}

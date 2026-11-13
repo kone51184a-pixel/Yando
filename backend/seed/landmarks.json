@@ -1,0 +1,9 @@
+[
+  { "id": "grand-marche", "name": "Grand Marché", "type": "marche", "lat": 12.6497, "lng": -8.0003 },
+  { "id": "monument-independance", "name": "Monument de l'Indépendance", "type": "monument", "lat": 12.6386, "lng": -7.9925 },
+  { "id": "pont-des-martyrs", "name": "Pont des Martyrs", "type": "pont", "lat": 12.6339, "lng": -7.9950 },
+  { "id": "aci-2000", "name": "ACI 2000", "type": "quartier", "lat": 12.6230, "lng": -8.0230 },
+  { "id": "badalabougou", "name": "Badalabougou", "type": "quartier", "lat": 12.6230, "lng": -7.9880 },
+  { "id": "aeroport-senou", "name": "Aéroport Modibo Keïta (Senou)", "type": "aeroport", "lat": 12.5335, "lng": -7.9499 },
+  { "id": "gare-routiere-sogoniko", "name": "Gare routière de Sogoniko", "type": "gare", "lat": 12.6050, "lng": -7.9700 }
+]

@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Documents du chauffeur : permis, pièce d'identité, papiers du véhicule.
+    // Images ou PDF, 5 Mo maximum. Visibles par le chauffeur et l'admin uniquement.
+    match /drivers/{uid}/documents/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.token.admin == true);
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+    }
+
+    // Photo de profil : visible par tout utilisateur connecté (le passager voit la photo du chauffeur).
+    match /profiles/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
