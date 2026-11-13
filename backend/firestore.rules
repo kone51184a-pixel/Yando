@@ -111,7 +111,9 @@ service cloud.firestore {
     match /reports/{id} {
       allow read: if isAdmin() || (signedIn() && resource.data.reporterId == request.auth.uid);
       allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['reporterId', 'rideId', 'text', 'status', 'createdAt'])
         && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.status == 'open'
         && request.resource.data.text is string && request.resource.data.text.size() <= 1000;
       allow update: if isAdmin();
       allow delete: if false;

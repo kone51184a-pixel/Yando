@@ -157,3 +157,32 @@ describe("Positions GPS (Realtime Database)", () => {
     await assertFails(set(ref(rtdb, `driverLocations/${DRIVER}`), { ...loc, vehicleClass: "camion", ts: Date.now() }));
   });
 });
+
+describe("Signalements (reports)", () => {
+  const report = { reporterId: PASSENGER, rideId: "r1", text: "Le chauffeur a pris un autre chemin", status: "open", createdAt: serverTimestamp() };
+
+  test("un utilisateur crée son signalement avec le statut open", async () => {
+    await assertSucceeds(setDoc(doc(passenger(), "reports/s1"), report));
+    await assertSucceeds(setDoc(doc(passenger(), "reports/s2"), { reporterId: PASSENGER, text: "Sans course", status: "open" }));
+  });
+  test("refuse un statut autre que open à la création", async () => {
+    await assertFails(setDoc(doc(passenger(), "reports/s3"), { ...report, status: "resolved" }));
+    await assertFails(setDoc(doc(passenger(), "reports/s4"), { reporterId: PASSENGER, text: "Sans statut" }));
+  });
+  test("refuse les champs en trop", async () => {
+    await assertFails(setDoc(doc(passenger(), "reports/s5"), { ...report, resolvedBy: "admin-1" }));
+  });
+  test("impossible de signaler au nom d'un autre", async () => {
+    await assertFails(setDoc(doc(other(), "reports/s6"), report));
+  });
+  test("lecture : le sien ou admin ; modification : admin seulement", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "reports/s7"), { reporterId: PASSENGER, text: "x", status: "open" });
+    });
+    await assertSucceeds(getDoc(doc(passenger(), "reports/s7")));
+    await assertFails(getDoc(doc(other(), "reports/s7")));
+    await assertSucceeds(getDoc(doc(admin(), "reports/s7")));
+    await assertFails(updateDoc(doc(passenger(), "reports/s7"), { status: "resolved" }));
+    await assertSucceeds(updateDoc(doc(admin(), "reports/s7"), { status: "resolved" }));
+  });
+});

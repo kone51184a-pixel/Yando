@@ -157,7 +157,7 @@ Lire `drivers/{uid}/dailyStats/{AAAA-MM-JJ}` → `{ rides, earnings }`.
 | `rides/{id}/messages` | les deux participants | `{ senderId, text, quick, createdAt: serverTimestamp }`, 500 caractères max, course active |
 | `payments/{rideId}` | passager, chauffeur | jamais |
 | `pricing/{gamme}`, `config/app`, `landmarks` | tout utilisateur connecté | jamais (admin) |
-| `reports` | son signalement | `{ reporterId, rideId?, text }` |
+| `reports` | son signalement (l'admin lit tout et le met à jour) | création : `{ reporterId, rideId?, text, status: "open", createdAt }` — `status` doit valoir `"open"`, aucun autre champ accepté, `text` 1000 caractères max |
 | `driverLocations/{uid}` (RTDB) | tout utilisateur connecté | le chauffeur validé, sa propre position |
 
 ### Inscription chauffeur
