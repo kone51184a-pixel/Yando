@@ -23,7 +23,12 @@ export const validateDriver = onCall(async (request) => {
   const driverRef = db.doc(`drivers/${driverId}`);
   if (!(await driverRef.get()).exists) throw new HttpsError("not-found", "Chauffeur introuvable.");
 
-  const user = await auth.getUser(driverId);
+  const user = await auth.getUser(driverId).catch((err: { code?: string }) => {
+    if (err.code === "auth/user-not-found") {
+      throw new HttpsError("failed-precondition", "Ce chauffeur n'a pas de compte de connexion.");
+    }
+    throw err;
+  });
   await auth.setCustomUserClaims(driverId, { ...(user.customClaims ?? {}), driver: approve });
   await driverRef.update({
     status: approve ? "approved" : "rejected",
