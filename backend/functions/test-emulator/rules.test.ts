@@ -82,7 +82,7 @@ describe("Chauffeurs (drivers)", () => {
     await assertSucceeds(setDoc(doc(ctx, "drivers/nouveau"), { name: "X", status: "pending" }));
   });
   test("ne peut pas modifier son statut ni sa note", async () => {
-    await assertFails(updateDoc(doc(driver(), `drivers/${DRIVER}`), { status: "approved" }));
+    await assertFails(updateDoc(doc(driver(), `drivers/${DRIVER}`), { status: "suspended" }));
     await assertFails(updateDoc(doc(driver(), `drivers/${DRIVER}`), { ratingSum: 500 }));
     await assertSucceeds(updateDoc(doc(driver(), `drivers/${DRIVER}`), { fcmToken: "abc" }));
   });
