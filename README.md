@@ -38,6 +38,28 @@ $env:FIRESTORE_EMULATOR_HOST="127.0.0.1:8080"; npm run seed
 
 Interface des émulateurs : http://127.0.0.1:4000
 
+### Tests avec les émulateurs (règles de sécurité + course complète)
+
+```bash
+cd backend/functions
+npm run test:emulator
+```
+
+Les émulateurs démarrent et s'arrêtent tout seuls.
+
+### Faux chauffeur (pour tester l'app passager sans vrai chauffeur)
+
+Avec les émulateurs lancés et le seed fait :
+
+```bash
+cd backend/functions
+npm run fake-driver                 # moto, accepte toutes les courses
+npm run fake-driver -- standard     # autre gamme
+npm run fake-driver -- moto --refuse
+```
+
+Il se met en ligne près du Grand Marché, accepte la course, roule jusqu'au passager, démarre avec le PIN, roule jusqu'à la destination et termine. Ctrl+C pour l'arrêter.
+
 Donner le rôle admin à un compte de test :
 
 ```bash
@@ -58,7 +80,7 @@ FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 npm run set-admin -- <uid>
 ## À faire
 
 - [ ] Brancher Orange Money / Moov Money (agrégateur à choisir) — `payments/mobileMoney.ts`
-- [ ] Tests des règles de sécurité avec l'émulateur
+- [ ] Lancer `npm run test:emulator` sur un PC (pas encore exécuté)
 - [ ] Tableau de bord admin
 - [ ] Remplacer les tarifs de test (`backend/seed/pricing.json`) par les tarifs validés
 - [ ] Vérifier les coordonnées des repères (`backend/seed/landmarks.json`)

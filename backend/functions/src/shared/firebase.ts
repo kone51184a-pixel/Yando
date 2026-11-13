@@ -5,7 +5,14 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 
 if (getApps().length === 0) {
-  initializeApp();
+  if (process.env.FIREBASE_CONFIG) {
+    // Dans Cloud Functions (et l'émulateur), Firebase fournit la configuration.
+    initializeApp();
+  } else {
+    // Scripts lancés à la main (seed, setAdmin, faux chauffeur, tests).
+    const projectId = process.env.GCLOUD_PROJECT ?? "demo-vtc-bamako";
+    initializeApp({ projectId, databaseURL: `https://${projectId}-default-rtdb.firebaseio.com` });
+  }
 }
 
 export const db = getFirestore();
